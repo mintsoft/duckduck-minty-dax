@@ -21,43 +21,67 @@ function curl_get($url, array $get = NULL, array $options = array())
     curl_close($ch);
     return json_decode($result, true);
 } 
-
 ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<style>
+    .highlight {
+        background: #efb4a5;
+    }
+</style>
 </head>
 <body>
  
 <table>
 <thead>
+    <th>Number</th>
+    <th>Created At</th>
+    <th>Updated At</th>
+    <th>Author</th>
+    <th>Latest Comment Updated At</th>
+    <th>Latest Comment Author</th>
 </thead>
 <tbody>
 
 <?php
+$comment_warning_threshold = 7;
+
+$timeago = gmdate("Y-m-d\TH:i:s", time() - $comment_warning_threshold * 86400)."Z";
+
 $issues = curl_get("https://api.github.com/repos/duckduckgo/zeroclickinfo-goodies/issues?page=1&per_page=100");
-var_dump($issues);
-
-exit;
+$index = 1;
 foreach($issues as $key => $i) {
-	if(!$i["pull_request"])
-		continue;
 
-#	$comments = curl_get($i["comments_url"]);
+	if(!isset($i["pull_request"]))
+		continue;
+    
+    $comments = array();
+	$comments = curl_get($i["comments_url"]);
 	$author = $i["user"]["login"];
 	$title = $i["title"];
 
 	$latest_comment = array(
-		created_at => '1970-01-01T00:00:00Z',
-		updated_at => '1970-01-01T00:00:00Z',
+		"created_at" => '1970-01-01T00:00:00Z',
+        "updated_at" => '1970-01-01T00:00:00Z',
+        "user" => array("login"=> "")
 	);
 
 	foreach($comments as $k => $comment) {
 		if($latest_comment["created_at"] < $comment["created_at"]) {
 			$latest_comment = $comment;
 		}
-	}	
-
+    }
+    
+    $className = $latest_comment["updated_at"] < $timeago ? "highlight" : "";
+    echo "<tr class='$className'>";
+        echo "<td>".htmlentities($i["number"])."</td>";
+        echo "<td>".htmlentities($i["created_at"])."</td>";
+        echo "<td>".htmlentities($i["updated_at"])."</td>";
+        echo "<td>".htmlentities($author)."</td>";
+        echo "<td>".htmlentities($latest_comment["updated_at"])."</td>";
+        echo "<td>".htmlentities($latest_comment["user"]["login"])."</td>";
+    echo "</tr>";
 }
 ?>
 </tbody>
