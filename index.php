@@ -1,7 +1,7 @@
 <?php
 
 function curl_get($url, array $get = NULL, array $options = array())
-{   
+{
     $defaults = array(
         CURLOPT_URL => $url,
         CURLOPT_HEADER => 0,
@@ -9,7 +9,9 @@ function curl_get($url, array $get = NULL, array $options = array())
         CURLOPT_TIMEOUT => 4,
         CURLOPT_USERAGENT => "DuckDuck-Minty-Dax"
     );
-   
+    if(!empty($_VAR['token'])) {
+        $options = array("Authorization", "token $token");
+    }
     $ch = curl_init();
     curl_setopt_array($ch, ($options + $defaults));
 
@@ -32,7 +34,11 @@ function curl_get($url, array $get = NULL, array $options = array())
 </style>
 </head>
 <body>
- 
+<form>
+<p>
+	Github token <input type='text' name='token' value='' />
+</p>
+</form> 
 <table>
 <thead>
     <th>Number</th>
