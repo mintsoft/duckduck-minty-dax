@@ -9,9 +9,6 @@ function curl_get($url, array $get = NULL, array $options = array())
         CURLOPT_TIMEOUT => 4,
         CURLOPT_USERAGENT => "DuckDuck-Minty-Dax"
     );
-    if(!empty($_VAR['token'])) {
-        $options = array("Authorization", "token $token");
-    }
     $ch = curl_init();
     curl_setopt_array($ch, ($options + $defaults));
 
@@ -34,10 +31,9 @@ function curl_get($url, array $get = NULL, array $options = array())
 </style>
 </head>
 <body>
-<form>
-<p>
-	Github token <input type='text' name='token' value='' />
-</p>
+<form method='post'>
+<p> Github token <input type='text' name='token' value='' /> </p>
+<p> <input type='submit' /> </p>
 </form> 
 <table>
 <thead>
@@ -52,10 +48,14 @@ function curl_get($url, array $get = NULL, array $options = array())
 
 <?php
 $comment_warning_threshold = 7;
-
 $timeago = gmdate("Y-m-d\TH:i:s", time() - $comment_warning_threshold * 86400)."Z";
 
-$issues = curl_get("https://api.github.com/repos/duckduckgo/zeroclickinfo-goodies/issues?page=1&per_page=100");
+if(!empty($_POST['token'])) {
+    $token = $_POST['token'];
+    $options = array("Authorization", "token $token");
+}
+
+$issues = curl_get("https://api.github.com/repos/duckduckgo/zeroclickinfo-goodies/issues?page=1&per_page=100", NULL, $options);
 $index = 1;
 foreach($issues as $key => $i) {
 
@@ -63,7 +63,7 @@ foreach($issues as $key => $i) {
 		continue;
     
 	$comments = array();
-	$comments = curl_get($i["comments_url"]);
+	$comments = curl_get($i["comments_url"], NULL, $options);
 	$author = $i["user"]["login"];
 	$title = $i["title"];
 	$url = $i["url"];
