@@ -62,10 +62,11 @@ foreach($issues as $key => $i) {
 	if(!isset($i["pull_request"]))
 		continue;
     
-    $comments = array();
+	$comments = array();
 	$comments = curl_get($i["comments_url"]);
 	$author = $i["user"]["login"];
 	$title = $i["title"];
+	$url = $i["url"];
 
 	$latest_comment = array(
 		"created_at" => '1970-01-01T00:00:00Z',
@@ -81,7 +82,7 @@ foreach($issues as $key => $i) {
     
     $className = $latest_comment["updated_at"] < $timeago ? "highlight" : "";
     echo "<tr class='$className'>";
-        echo "<td>".htmlentities($i["number"])."</td>";
+        echo "<td><a href='$url'>".htmlentities($i["number"])."</a></td>";
         echo "<td>".htmlentities($i["created_at"])."</td>";
         echo "<td>".htmlentities($i["updated_at"])."</td>";
         echo "<td>".htmlentities($author)."</td>";
