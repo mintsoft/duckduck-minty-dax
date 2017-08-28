@@ -18,7 +18,13 @@ function curl_get($url, array $get = NULL, array $options = array())
     }
 
     curl_close($ch);
-    return json_decode($result, true);
+    $return_result = json_decode($result, true);
+    if(isset($return_result['message']))
+    {
+        echo "JSON error returned: ".$return_result['message'];
+        throw new Exception("JSON error returned: ".$return_result['message']);
+    }
+    return $return_result;
 } 
 ?>
 <!DOCTYPE html>
@@ -58,7 +64,6 @@ if(!empty($_POST['token'])) {
 }
 
 $issues = curl_get("https://api.github.com/repos/duckduckgo/zeroclickinfo-goodies/issues?page=1&per_page=100", NULL, $options);
-
 $index = 1;
 foreach($issues as $key => $i) {
 
