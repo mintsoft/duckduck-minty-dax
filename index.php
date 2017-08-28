@@ -4,7 +4,7 @@ function curl_get($url, array $get = NULL, array $options = array())
 {
     $defaults = array(
         CURLOPT_URL => $url,
-        CURLOPT_HEADER => 0,
+        CURLOPT_HEADER => 1,
         CURLOPT_RETURNTRANSFER => TRUE,
         CURLOPT_TIMEOUT => 4,
         CURLOPT_USERAGENT => "DuckDuck-Minty-Dax"
@@ -18,10 +18,16 @@ function curl_get($url, array $get = NULL, array $options = array())
     }
 
     curl_close($ch);
-    $return_result = json_decode($result, true);
-    if(isset($return_result['message']))
+
+    $result = str_replace("\r\n", "\n", $result);
+
+    $html_components = explode("\n\n",$result);
+
+    $return_result = json_decode($html_components[1], true);
+    if(!preg_match("/^HTTP\/[0-9](.[0-9])? 200/", $html_components[0]))
     {
-        echo "JSON error returned: ".$return_result['message'];
+        echo "JSON was not 200, error returned: ".$return_result['message'];
+        echo "Headers are: ".$html_components[0];
         throw new Exception("JSON error returned: ".$return_result['message']);
     }
     return $return_result;
