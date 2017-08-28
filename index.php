@@ -50,12 +50,15 @@ function curl_get($url, array $get = NULL, array $options = array())
 $comment_warning_threshold = 7;
 $timeago = gmdate("Y-m-d\TH:i:s", time() - $comment_warning_threshold * 86400)."Z";
 
+$options = array();
+
 if(!empty($_POST['token'])) {
     $token = $_POST['token'];
     $options = array("Authorization", "token $token");
 }
 
 $issues = curl_get("https://api.github.com/repos/duckduckgo/zeroclickinfo-goodies/issues?page=1&per_page=100", NULL, $options);
+
 $index = 1;
 foreach($issues as $key => $i) {
 
@@ -66,7 +69,7 @@ foreach($issues as $key => $i) {
 	$comments = curl_get($i["comments_url"], NULL, $options);
 	$author = $i["user"]["login"];
 	$title = $i["title"];
-	$url = $i["url"];
+	$url = $i["html_url"];
 
 	$latest_comment = array(
 		"created_at" => '1970-01-01T00:00:00Z',
